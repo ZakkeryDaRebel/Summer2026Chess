@@ -9,6 +9,6 @@ public class BishopCalculator implements MoveCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition pos) {
         int[][] directions = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
-        return loopVerifier(board, pos, directions);
+        return loopVerifier(board, pos, directions, false);
     }
 }

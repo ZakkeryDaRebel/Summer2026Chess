@@ -9,6 +9,6 @@ public class KingCalculator implements MoveCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition pos) {
         int[][] directions = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}};
-        return spotVerifier(board, pos, directions);
+        return loopVerifier(board, pos, directions, true);
     }
 }

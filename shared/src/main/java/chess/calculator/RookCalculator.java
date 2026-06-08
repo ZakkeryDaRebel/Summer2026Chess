@@ -9,6 +9,6 @@ public class RookCalculator implements MoveCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition pos) {
         int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-        return loopVerifier(board, pos, directions);
+        return loopVerifier(board, pos, directions, false);
     }
 }

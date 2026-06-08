@@ -9,6 +9,6 @@ public class KnightCalculator implements MoveCalculator {
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition pos) {
         int[][] directions = {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}};
-        return spotVerifier(board, pos, directions);
+        return loopVerifier(board, pos, directions, true);
     }
 }
