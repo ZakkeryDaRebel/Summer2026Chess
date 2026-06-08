@@ -1,8 +1,6 @@
 package chess.calculator;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,17 +20,24 @@ public interface MoveCalculator {
         Collection<ChessMove> pieceMoves = new ArrayList<>();
         for (int[] move : directions) {
             ChessPosition newPos = new ChessPosition(pos.getRow() + move[0], pos.getColumn() + move[1]);
-            if (outOfBounds(newPos)) {
-                continue;
-            }
-            if (board.getPiece(newPos) == null) {
-                pieceMoves.add(new ChessMove(pos, newPos, null));
-            } else if (board.getPiece(newPos).getTeamColor() != board.getPiece(pos).getTeamColor()) {
-                pieceMoves.add(new ChessMove(pos, newPos, null));
-            }
+            checkSpot(board, pos, newPos, pieceMoves);
         }
         return pieceMoves;
     }
 
-
+    default boolean checkSpot(ChessBoard board, ChessPosition startPos, ChessPosition newPos,
+                              Collection<ChessMove> pieceMoves) {
+        if (outOfBounds(newPos)) {
+            return false;
+        }
+        ChessPiece capturedPiece = board.getPiece(newPos);
+        if (capturedPiece == null) {
+            pieceMoves.add(new ChessMove(startPos, newPos, null));
+            return true;
+        }
+        if (board.getPiece(newPos).getTeamColor() != board.getPiece(startPos).getTeamColor()) {
+            pieceMoves.add(new ChessMove(startPos, newPos, null));
+        }
+        return false;
+    }
 }
