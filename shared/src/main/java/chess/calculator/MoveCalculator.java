@@ -12,25 +12,17 @@ public interface MoveCalculator {
         return pos.getRow() < 1 || pos.getRow() > 8 || pos.getColumn() < 1 || pos.getColumn() > 8;
     }
 
-    default Collection<ChessMove> loopVerifier(ChessBoard board, ChessPosition pos, int[][] directions) {
+    default Collection<ChessMove> loopVerifier(ChessBoard board, ChessPosition pos, int[][] directions,
+                                               boolean onlyOneSquare) {
         Collection<ChessMove> pieceMoves = new ArrayList<>();
         for (int[] move : directions) {
             ChessPosition newPos = new ChessPosition(pos.getRow() + move[0], pos.getColumn() + move[1]);
             boolean canKeepMoving = true;
 
             while(!outOfBounds(newPos) && canKeepMoving) {
-                canKeepMoving = checkSpot(board, pos, newPos, pieceMoves);
+                canKeepMoving = checkSpot(board, pos, newPos, pieceMoves) && !onlyOneSquare;
                 newPos = new ChessPosition(newPos.getRow() + move[0], newPos.getColumn() + move[1]);
             }
-        }
-        return pieceMoves;
-    }
-
-    default Collection<ChessMove> spotVerifier(ChessBoard board, ChessPosition pos, int[][] directions) {
-        Collection<ChessMove> pieceMoves = new ArrayList<>();
-        for (int[] move : directions) {
-            ChessPosition newPos = new ChessPosition(pos.getRow() + move[0], pos.getColumn() + move[1]);
-            checkSpot(board, pos, newPos, pieceMoves);
         }
         return pieceMoves;
     }
