@@ -12,6 +12,10 @@ public interface MoveCalculator {
         return pos.getRow() < 1 || pos.getRow() > 8 || pos.getColumn() < 1 || pos.getColumn() > 8;
     }
 
+    default boolean isEnemy(ChessPiece startPiece, ChessPiece endPiece) {
+        return startPiece.getTeamColor() != endPiece.getTeamColor();
+    }
+
     default Collection<ChessMove> loopVerifier(ChessBoard board, ChessPosition pos, int[][] directions,
                                                boolean onlyOneSquare) {
         Collection<ChessMove> pieceMoves = new ArrayList<>();
@@ -29,15 +33,12 @@ public interface MoveCalculator {
 
     default boolean checkSpot(ChessBoard board, ChessPosition startPos, ChessPosition newPos,
                               Collection<ChessMove> pieceMoves) {
-        if (outOfBounds(newPos)) {
-            return false;
-        }
         ChessPiece capturedPiece = board.getPiece(newPos);
         if (capturedPiece == null) {
             pieceMoves.add(new ChessMove(startPos, newPos, null));
             return true;
         }
-        if (board.getPiece(newPos).getTeamColor() != board.getPiece(startPos).getTeamColor()) {
+        if (isEnemy(board.getPiece(startPos), capturedPiece)) {
             pieceMoves.add(new ChessMove(startPos, newPos, null));
         }
         return false;
