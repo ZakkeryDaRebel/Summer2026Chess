@@ -1,6 +1,9 @@
 package chess;
 
+import chess.calculator.CastlingCalculator;
+import chess.calculator.PawnCalculator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -15,12 +18,15 @@ public class ChessGame {
     private TeamColor turn;
     private ChessBoard gameBoard;
     private boolean gameOver;
+    private final boolean[][] castlingPermissions = {{true, true, true}, {true, true, true}};
+    private ChessMove lastMove;
 
     public ChessGame() {
         this.turn = TeamColor.WHITE;
         this.gameBoard = new ChessBoard();
         this.gameBoard.resetBoard();
         this.gameOver = false;
+        lastMove = null;
     }
 
     /**
@@ -78,6 +84,12 @@ public class ChessGame {
             }
 
         }
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            new PawnCalculator().canEnPassant(lastMove, this.gameBoard, startPosition, validMoves);
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            new CastlingCalculator().canCastle(castlingPermissions, this.gameBoard, startPosition, validMoves);
+        }
         return validMoves;
     }
 
@@ -88,19 +100,15 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (this.gameBoard.getPiece(move.getStartPosition()) == null) {
-            throw new InvalidMoveException();
-        }
-        if (this.turn != this.gameBoard.getPiece(move.getStartPosition()).getTeamColor()) {
-            throw new InvalidMoveException();
-        }
-        if (this.gameOver) {
-            throw new InvalidMoveException();
-        }
-        if (!validMoves(move.getStartPosition()).contains(move)) {
+        ChessPosition startPos = move.getStartPosition();
+        ChessPiece checkPiece = this.gameBoard.getPiece(startPos);
+        if (checkPiece == null || this.turn != checkPiece.getTeamColor() || this.gameOver ||
+                !validMoves(startPos).contains(move)) {
             throw new InvalidMoveException();
         }
         executeMove(move);
+        this.lastMove = move;
+        new CastlingCalculator().updateCastlingPermissions(move, this.gameBoard, castlingPermissions);
         swapTeamTurn();
         if (isInCheckmate(this.turn) || isInStalemate(this.turn)) {
             this.gameOver = true;
@@ -213,11 +221,11 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return gameOver == chessGame.gameOver && turn == chessGame.turn && Objects.equals(gameBoard, chessGame.gameBoard);
+        return gameOver == chessGame.gameOver && turn == chessGame.turn && Objects.equals(gameBoard, chessGame.gameBoard) && Objects.deepEquals(castlingPermissions, chessGame.castlingPermissions) && Objects.equals(lastMove, chessGame.lastMove);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(turn, gameBoard, gameOver);
+        return Objects.hash(turn, gameBoard, gameOver, Arrays.deepHashCode(castlingPermissions), lastMove);
     }
 }
