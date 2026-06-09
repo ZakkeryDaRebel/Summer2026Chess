@@ -70,9 +70,19 @@ public class PawnCalculator implements MoveCalculator {
         }
         if (Math.abs(startPos.getRow() - endPos.getRow()) == 2 && piecePos.getRow() == endPos.getRow() &&
             Math.abs(endPos.getColumn() - piecePos.getColumn()) == 1) {
-            int forward = board.getPiece(endPos).getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+            int forward = board.getPiece(endPos).getTeamColor() == ChessGame.TeamColor.WHITE ? -1 : 1;
             validMoves.add(new ChessMove(piecePos,
                     new ChessPosition(piecePos.getRow() + forward, endPos.getColumn()), null));
         }
+    }
+
+    public ChessMove isEnPassant(ChessMove move, ChessBoard board) {
+        ChessPosition startPos = move.getStartPosition();
+        ChessPosition endPos = move.getEndPosition();
+        ChessPosition possiblePawn = new ChessPosition(startPos.getRow(), endPos.getColumn());
+        if (startPos.getColumn() != endPos.getColumn() && board.getPiece(possiblePawn) != null) {
+            return new ChessMove(possiblePawn, null, null);
+        }
+        return null;
     }
 }
