@@ -65,6 +65,11 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        if (startPosition.getRow() < 1 || startPosition.getRow() > 8 ||
+                startPosition.getColumn() < 1 || startPosition.getColumn() > 8) {
+            return null;
+        }
+
         Collection<ChessMove> validMoves = new ArrayList<>();
         ChessPiece piece = this.gameBoard.getPiece(startPosition);
         if (piece == null) {
@@ -74,7 +79,7 @@ public class ChessGame {
         for (ChessMove move : pieceMoves) {
             try {
                 ChessBoard originalBoard = (ChessBoard) this.gameBoard.clone();
-                executeMove(move);
+                executeMove(move, null);
                 if (!isInCheck(piece.getTeamColor())) {
                     validMoves.add(move);
                 }
@@ -106,7 +111,7 @@ public class ChessGame {
                 !validMoves(startPos).contains(move)) {
             throw new InvalidMoveException();
         }
-        executeMove(move);
+        executeMove(move, updateSecondSpot(move));
         this.lastMove = move;
         new CastlingCalculator().updateCastlingPermissions(move, this.gameBoard, castlingPermissions);
         swapTeamTurn();
@@ -115,12 +120,26 @@ public class ChessGame {
         }
     }
 
-    public void executeMove(ChessMove move) {
+    public void executeMove(ChessMove move, ChessMove secondPiece) {
         ChessPiece oldPiece = this.gameBoard.getPiece(move.getStartPosition());
         ChessPiece newPiece = new ChessPiece(oldPiece.getTeamColor(), move.getPromotionPiece() != null ?
                 move.getPromotionPiece() : oldPiece.getPieceType());
         this.gameBoard.addPiece(move.getStartPosition(), null);
         this.gameBoard.addPiece(move.getEndPosition(), newPiece);
+        if (secondPiece != null) {
+            if (secondPiece.getEndPosition() != null) {
+                ChessPiece otherPiece = this.gameBoard.getPiece(move.getStartPosition());
+                this.gameBoard.addPiece(secondPiece.getEndPosition(), otherPiece);
+            }
+            this.gameBoard.addPiece(secondPiece.getStartPosition(), null);
+        }
+    }
+
+    public ChessMove updateSecondSpot(ChessMove move) {
+        if (this.gameBoard.getPiece(move.getStartPosition()).getPieceType() == ChessPiece.PieceType.PAWN) {
+            return new PawnCalculator().isEnPassant(move, this.gameBoard);
+        }
+        return null;
     }
 
     private ChessPosition findKing(TeamColor color) {
@@ -204,6 +223,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.gameBoard = board;
+        new CastlingCalculator().setBoard(board, castlingPermissions);
     }
 
     /**
