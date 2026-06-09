@@ -77,6 +77,15 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+    public void executeMove(ChessMove move) {
+        ChessPiece oldPiece = this.gameBoard.getPiece(move.getStartPosition());
+        ChessPiece newPiece = new ChessPiece(oldPiece.getTeamColor(), move.getPromotionPiece() != null ?
+                move.getPromotionPiece() : oldPiece.getPieceType());
+        //ChessPiece takenPiece = this.gameBoard.getPiece(move.getEndPosition());
+        this.gameBoard.addPiece(move.getStartPosition(), null);
+        this.gameBoard.addPiece(move.getEndPosition(), newPiece);
+    }
+
     private ChessPosition findKing(TeamColor color) {
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {
