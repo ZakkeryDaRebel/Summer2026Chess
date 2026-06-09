@@ -62,7 +62,17 @@ public class ChessGame {
         }
         Collection<ChessMove> pieceMoves = piece.pieceMoves(this.gameBoard, startPosition);
         for (ChessMove move : pieceMoves) {
-            // copy chess board to see if the king is not in check
+            try {
+                ChessBoard originalBoard = (ChessBoard) this.gameBoard.clone();
+                executeMove(move);
+                if (!isInCheck(piece.getTeamColor())) {
+                    validMoves.add(move);
+                }
+                setBoard(originalBoard);
+            } catch (CloneNotSupportedException e) {
+                return null;
+            }
+
         }
         return validMoves;
     }
