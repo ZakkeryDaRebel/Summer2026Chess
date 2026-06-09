@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -64,6 +66,31 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         throw new RuntimeException("Not implemented");
+    }
+
+    private ChessPosition findKing(TeamColor color) {
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition checkPos = new ChessPosition(row, col);
+                ChessPiece piece = this.gameBoard.getPiece(checkPos);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
+                    return checkPos;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean anyValidMoves(TeamColor color) {
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition checkPos = new ChessPosition(row, col);
+                if (!validMoves(checkPos).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
