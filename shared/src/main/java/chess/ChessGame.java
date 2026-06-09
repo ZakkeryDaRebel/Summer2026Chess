@@ -30,6 +30,10 @@ public class ChessGame {
         return this.turn;
     }
 
+    private void swapTeamTurn() {
+        this.turn = this.turn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+    }
+
     /**
      * Sets which teams turn it is
      *
@@ -68,7 +72,7 @@ public class ChessGame {
                 if (!isInCheck(piece.getTeamColor())) {
                     validMoves.add(move);
                 }
-                setBoard(originalBoard);
+                this.gameBoard = originalBoard;
             } catch (CloneNotSupportedException e) {
                 return null;
             }
@@ -84,14 +88,21 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        if (getTeamTurn() != this.gameBoard.getPiece(move.getStartPosition()).getTeamColor()) {
+            throw new InvalidMoveException();
+        }
+        if (this.gameOver) {
+            throw new InvalidMoveException();
+        }
+        if (!validMoves(move.getStartPosition()).contains(move)) {
+            throw new InvalidMoveException();
+        }
     }
 
     public void executeMove(ChessMove move) {
         ChessPiece oldPiece = this.gameBoard.getPiece(move.getStartPosition());
         ChessPiece newPiece = new ChessPiece(oldPiece.getTeamColor(), move.getPromotionPiece() != null ?
                 move.getPromotionPiece() : oldPiece.getPieceType());
-        //ChessPiece takenPiece = this.gameBoard.getPiece(move.getEndPosition());
         this.gameBoard.addPiece(move.getStartPosition(), null);
         this.gameBoard.addPiece(move.getEndPosition(), newPiece);
     }
@@ -113,7 +124,8 @@ public class ChessGame {
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {
                 ChessPosition checkPos = new ChessPosition(row, col);
-                if (!validMoves(checkPos).isEmpty()) {
+                ChessPiece checkPiece = this.gameBoard.getPiece(checkPos);
+                if (checkPiece != null && checkPiece.getTeamColor() == color && !validMoves(checkPos).isEmpty()) {
                     return false;
                 }
             }
