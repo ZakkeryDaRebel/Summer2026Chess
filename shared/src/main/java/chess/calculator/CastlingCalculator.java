@@ -9,15 +9,18 @@ public class CastlingCalculator {
                           Collection<ChessMove> validMoves) {
         ChessGame.TeamColor color = board.getPiece(startPos).getTeamColor();
         int side = color == ChessGame.TeamColor.WHITE ? 0 : 1;
+        int row = startPos.getRow();
 
         if (!castlingPermissions[side][1]) {
             return;
         }
-        if (castlingPermissions[side][0] && checkCastleQueen(board, startPos, color)) {
-            validMoves.add(new ChessMove(startPos, new ChessPosition(startPos.getRow(), 3), null));
+        if (castlingPermissions[side][0] && checkSpots(board, color, new ChessPosition(row, 2),
+                new ChessPosition(row, 3), new ChessPosition(row, 4))) {
+            validMoves.add(new ChessMove(startPos, new ChessPosition(row, 3), null));
         }
-        if (castlingPermissions[side][2] && checkCastleKing(board, startPos, color)) {
-            validMoves.add(new ChessMove(startPos, new ChessPosition(startPos.getRow(), 7), null));
+        if (castlingPermissions[side][2] && checkSpots(board, color, new ChessPosition(row, 6),
+                new ChessPosition(row, 7))) {
+            validMoves.add(new ChessMove(startPos, new ChessPosition(row, 7), null));
         }
     }
 
@@ -70,26 +73,7 @@ public class CastlingCalculator {
         captureCorner(move, castlingPermissions);
     }
 
-    public boolean checkCastleQueen(ChessBoard board, ChessPosition startPos, ChessGame.TeamColor color) {
-        ChessPosition[] queenSideSpots = {
-                new ChessPosition(startPos.getRow(), 2),
-                new ChessPosition(startPos.getRow(), 3),
-                new ChessPosition(startPos.getRow(), 4)
-        };
-
-        return checkSpots(board, color, queenSideSpots);
-    }
-
-    public boolean checkCastleKing(ChessBoard board, ChessPosition startPos, ChessGame.TeamColor color) {
-        ChessPosition[] kingSideSpots = {
-                new ChessPosition(startPos.getRow(), 6),
-                new ChessPosition(startPos.getRow(), 7)
-        };
-
-        return checkSpots(board, color, kingSideSpots);
-    }
-
-    private boolean checkSpots(ChessBoard board, ChessGame.TeamColor color, ChessPosition[] spots) {
+    private boolean checkSpots(ChessBoard board, ChessGame.TeamColor color, ChessPosition... spots) {
         for (ChessPosition pos : spots) {
             if (board.getPiece(pos) != null || AttackKingCalculator.canAttackKing(board, color, pos)) {
                 return false;
