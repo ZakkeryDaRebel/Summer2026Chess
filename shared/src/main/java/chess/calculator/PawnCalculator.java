@@ -7,6 +7,13 @@ import java.util.Collection;
 
 public class PawnCalculator implements MoveCalculator {
 
+    private static final ChessPiece.PieceType[] PROMOTIONS = {
+            ChessPiece.PieceType.QUEEN,
+            ChessPiece.PieceType.ROOK,
+            ChessPiece.PieceType.BISHOP,
+            ChessPiece.PieceType.KNIGHT
+    };
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition pos) {
         Collection<ChessMove> pieceMoves = new ArrayList<>();
 
@@ -49,9 +56,7 @@ public class PawnCalculator implements MoveCalculator {
     public void addPromotion(Collection<ChessMove> pieceMoves, ChessPosition startPos, ChessPosition endPos,
                              int promotionRow) {
         if (endPos.getRow() == promotionRow) {
-            ChessPiece.PieceType[] promotions = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.BISHOP,
-                    ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK};
-            for (ChessPiece.PieceType promotion : promotions) {
+            for (ChessPiece.PieceType promotion : PROMOTIONS) {
                 pieceMoves.add(new ChessMove(startPos, endPos, promotion));
             }
         } else {
@@ -65,12 +70,13 @@ public class PawnCalculator implements MoveCalculator {
         }
         ChessPosition startPos = lastMove.getStartPosition();
         ChessPosition endPos = lastMove.getEndPosition();
-        if (board.getPiece(endPos).getPieceType() != ChessPiece.PieceType.PAWN) {
+        ChessPiece piece = board.getPiece(endPos);
+        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
             return;
         }
         if (Math.abs(startPos.getRow() - endPos.getRow()) == 2 && piecePos.getRow() == endPos.getRow() &&
             Math.abs(endPos.getColumn() - piecePos.getColumn()) == 1) {
-            int forward = board.getPiece(endPos).getTeamColor() == ChessGame.TeamColor.WHITE ? -1 : 1;
+            int forward = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? -1 : 1;
             validMoves.add(new ChessMove(piecePos,
                     new ChessPosition(piecePos.getRow() + forward, endPos.getColumn()), null));
         }
