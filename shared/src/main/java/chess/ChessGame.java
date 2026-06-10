@@ -234,7 +234,9 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return gameOver == chessGame.gameOver && turn == chessGame.turn && Objects.equals(gameBoard, chessGame.gameBoard) && Objects.deepEquals(castlingPermissions, chessGame.castlingPermissions) && Objects.equals(lastMove, chessGame.lastMove);
+        return gameOver == chessGame.gameOver && turn == chessGame.turn &&
+                Objects.equals(gameBoard, chessGame.gameBoard) && Objects.equals(lastMove, chessGame.lastMove) &&
+                Objects.deepEquals(castlingPermissions, chessGame.castlingPermissions);
     }
 
     @Override
