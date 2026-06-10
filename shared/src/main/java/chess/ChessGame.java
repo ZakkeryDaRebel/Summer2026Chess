@@ -23,15 +23,17 @@ public class ChessGame {
     private ChessMove lastMove;
     private final PawnCalculator pawnCalc;
     private final CastlingCalculator castleCalc;
+    private final BoardLooper boardLooper;
 
     public ChessGame() {
         this.turn = TeamColor.WHITE;
         this.gameBoard = new ChessBoard();
         this.gameBoard.resetBoard();
         this.gameOver = false;
-        lastMove = null;
-        pawnCalc = new PawnCalculator();
-        castleCalc = new CastlingCalculator();
+        this.lastMove = null;
+        this.pawnCalc = new PawnCalculator();
+        this.castleCalc = new CastlingCalculator();
+        this.boardLooper = new BoardLooper();
     }
 
     /**
@@ -153,29 +155,23 @@ public class ChessGame {
     }
 
     private ChessPosition findKing(TeamColor color) {
-        for (int row = 1; row < 9; row++) {
-            for (int col = 1; col < 9; col++) {
-                ChessPosition checkPos = new ChessPosition(row, col);
-                ChessPiece piece = this.gameBoard.getPiece(checkPos);
-                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
-                    return checkPos;
-                }
+        return this.boardLooper.findPosition(pos -> {
+            ChessPiece piece = this.gameBoard.getPiece(pos);
+            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color) {
+                return pos;
             }
-        }
-        return null;
+            return null;
+        });
     }
 
     private boolean noValidMoves(TeamColor color) {
-        for (int row = 1; row < 9; row++) {
-            for (int col = 1; col < 9; col++) {
-                ChessPosition checkPos = new ChessPosition(row, col);
-                ChessPiece checkPiece = this.gameBoard.getPiece(checkPos);
-                if (checkPiece != null && checkPiece.getTeamColor() == color && !validMoves(checkPos).isEmpty()) {
-                    return false;
-                }
+        return this.boardLooper.findPosition(pos -> {
+            ChessPiece checkPiece = this.gameBoard.getPiece(pos);
+            if (checkPiece != null && checkPiece.getTeamColor() == color && !validMoves(pos).isEmpty()) {
+                return Boolean.FALSE;
             }
-        }
-        return true;
+            return null;
+        }) == null;
     }
 
     /**
