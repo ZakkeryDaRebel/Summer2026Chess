@@ -6,26 +6,20 @@ import java.util.Collection;
 
 public class AttackKingCalculator {
 
+    private static final BoardLooper boardLooper = new BoardLooper();
+
     public static boolean canAttackKing(ChessBoard board, ChessGame.TeamColor teamColor, ChessPosition kingPos) {
-        for (int row = 1; row < 9; row++) {
-            for (int col = 1; col < 9; col++) {
-                ChessPosition testPos = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(testPos);
-                if (piece!=null && piece.getTeamColor()!=teamColor && pieceMeetsKing(board, piece, testPos, kingPos)) {
-                    return true;
+        return boardLooper.findPosition(pos -> {
+            ChessPiece piece = board.getPiece(pos);
+            if (piece != null && piece.getTeamColor() != teamColor) {
+                Collection<ChessMove> pieceMoves = piece.pieceMoves(board, pos);
+                for (ChessMove attack : pieceMoves) {
+                    if (attack.getEndPosition().equals(kingPos)) {
+                        return Boolean.TRUE;
+                    }
                 }
             }
-        }
-        return false;
-    }
-
-    public static boolean pieceMeetsKing(ChessBoard board, ChessPiece piece, ChessPosition testPos, ChessPosition kingPos) {
-        Collection<ChessMove> pieceMoves = piece.pieceMoves(board, testPos);
-        for (ChessMove attack : pieceMoves) {
-            if (attack.getEndPosition().equals(kingPos)) {
-                return true;
-            }
-        }
-        return false;
+            return null;
+        }) == Boolean.TRUE;
     }
 }
