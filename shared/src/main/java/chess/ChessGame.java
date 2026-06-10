@@ -139,13 +139,11 @@ public class ChessGame {
     public ChessMove updateSecondSpot(ChessMove move) {
         ChessPiece.PieceType type = this.gameBoard.getPiece(move.getStartPosition()).getPieceType();
 
-        if (type == ChessPiece.PieceType.PAWN) {
-            return new PawnCalculator().isEnPassant(move, this.gameBoard);
-        }
-        if (type == ChessPiece.PieceType.KING) {
-            return new CastlingCalculator().isCastleMove(move, castlingPermissions);
-        }
-        return null;
+        return switch (type) {
+            case PAWN ->  new PawnCalculator().isEnPassant(move, this.gameBoard);
+            case KING -> new CastlingCalculator().isCastleMove(move, castlingPermissions);
+            default -> null;
+        };
     }
 
     private ChessPosition findKing(TeamColor color) {
