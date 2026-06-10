@@ -1,5 +1,6 @@
 package chess;
 
+import chess.calculator.AttackKingCalculator;
 import chess.calculator.CastlingCalculator;
 import chess.calculator.PawnCalculator;
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public class ChessGame {
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             new PawnCalculator().canEnPassant(lastMove, this.gameBoard, startPosition, validMoves);
         }
-        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && !isInCheck(piece.getTeamColor())) {
             new CastlingCalculator().canCastle(castlingPermissions, this.gameBoard, startPosition, validMoves);
         }
         return validMoves;
@@ -128,7 +129,7 @@ public class ChessGame {
         this.gameBoard.addPiece(move.getEndPosition(), newPiece);
         if (secondPiece != null) {
             if (secondPiece.getEndPosition() != null) {
-                ChessPiece otherPiece = this.gameBoard.getPiece(move.getStartPosition());
+                ChessPiece otherPiece = this.gameBoard.getPiece(secondPiece.getStartPosition());
                 this.gameBoard.addPiece(secondPiece.getEndPosition(), otherPiece);
             }
             this.gameBoard.addPiece(secondPiece.getStartPosition(), null);
@@ -136,8 +137,13 @@ public class ChessGame {
     }
 
     public ChessMove updateSecondSpot(ChessMove move) {
-        if (this.gameBoard.getPiece(move.getStartPosition()).getPieceType() == ChessPiece.PieceType.PAWN) {
+        ChessPiece.PieceType type = this.gameBoard.getPiece(move.getStartPosition()).getPieceType();
+
+        if (type == ChessPiece.PieceType.PAWN) {
             return new PawnCalculator().isEnPassant(move, this.gameBoard);
+        }
+        if (type == ChessPiece.PieceType.KING) {
+            return new CastlingCalculator().isCastleMove(move, castlingPermissions);
         }
         return null;
     }
@@ -175,24 +181,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPos = findKing(teamColor);
-
-        for (int row = 1; row < 9; row++) {
-            for (int col = 1; col < 9; col++) {
-                ChessPosition checkPos = new ChessPosition(row, col);
-                ChessPiece checkPiece = this.gameBoard.getPiece(checkPos);
-                if (checkPiece == null) {
-                    continue;
-                }
-                Collection<ChessMove> pieceMoves = checkPiece.pieceMoves(this.gameBoard, checkPos);
-                for (ChessMove move : pieceMoves) {
-                    if (move.getEndPosition().equals(kingPos)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return AttackKingCalculator.canAttackKing(this.gameBoard, teamColor, findKing(teamColor));
     }
 
     /**
@@ -223,7 +212,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.gameBoard = board;
-        new CastlingCalculator().setBoard(board, castlingPermissions);
+        new CastlingCalculator().loadBoard(board, castlingPermissions);
     }
 
     /**
