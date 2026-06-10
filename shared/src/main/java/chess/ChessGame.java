@@ -21,6 +21,8 @@ public class ChessGame {
     private boolean gameOver;
     private final boolean[][] castlingPermissions = {{true, true, true}, {true, true, true}};
     private ChessMove lastMove;
+    private final PawnCalculator pawnCalc;
+    private final CastlingCalculator castleCalc;
 
     public ChessGame() {
         this.turn = TeamColor.WHITE;
@@ -28,6 +30,8 @@ public class ChessGame {
         this.gameBoard.resetBoard();
         this.gameOver = false;
         lastMove = null;
+        pawnCalc = new PawnCalculator();
+        castleCalc = new CastlingCalculator();
     }
 
     /**
@@ -91,10 +95,10 @@ public class ChessGame {
 
         }
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            new PawnCalculator().canEnPassant(lastMove, this.gameBoard, startPosition, validMoves);
+            pawnCalc.canEnPassant(lastMove, this.gameBoard, startPosition, validMoves);
         }
         if (piece.getPieceType() == ChessPiece.PieceType.KING && !isInCheck(piece.getTeamColor())) {
-            new CastlingCalculator().canCastle(castlingPermissions, this.gameBoard, startPosition, validMoves);
+            castleCalc.canCastle(castlingPermissions, this.gameBoard, startPosition, validMoves);
         }
         return validMoves;
     }
@@ -114,7 +118,7 @@ public class ChessGame {
         }
         executeMove(move, updateSecondSpot(move));
         this.lastMove = move;
-        new CastlingCalculator().updateCastlingPermissions(move, this.gameBoard, castlingPermissions);
+        castleCalc.updateCastlingPermissions(move, this.gameBoard, castlingPermissions);
         swapTeamTurn();
         if (isInCheckmate(this.turn) || isInStalemate(this.turn)) {
             this.gameOver = true;
@@ -123,8 +127,10 @@ public class ChessGame {
 
     public void executeMove(ChessMove move, ChessMove secondPiece) {
         ChessPiece oldPiece = this.gameBoard.getPiece(move.getStartPosition());
-        ChessPiece newPiece = new ChessPiece(oldPiece.getTeamColor(), move.getPromotionPiece() != null ?
-                move.getPromotionPiece() : oldPiece.getPieceType());
+        ChessPiece.PieceType newType = move.getPromotionPiece() != null ?
+                                        move.getPromotionPiece() : oldPiece.getPieceType();
+        ChessPiece newPiece = new ChessPiece(oldPiece.getTeamColor(), newType);
+
         this.gameBoard.addPiece(move.getStartPosition(), null);
         this.gameBoard.addPiece(move.getEndPosition(), newPiece);
         if (secondPiece != null) {
@@ -140,8 +146,8 @@ public class ChessGame {
         ChessPiece.PieceType type = this.gameBoard.getPiece(move.getStartPosition()).getPieceType();
 
         return switch (type) {
-            case PAWN ->  new PawnCalculator().isEnPassant(move, this.gameBoard);
-            case KING -> new CastlingCalculator().isCastleMove(move, castlingPermissions);
+            case PAWN ->  pawnCalc.isEnPassant(move, this.gameBoard);
+            case KING -> castleCalc.isCastleMove(move, castlingPermissions);
             default -> null;
         };
     }
@@ -210,7 +216,7 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.gameBoard = board;
-        new CastlingCalculator().loadBoard(board, castlingPermissions);
+        castleCalc.loadBoard(board, castlingPermissions);
     }
 
     /**
