@@ -5,20 +5,27 @@ import chess.*;
 import java.util.Collection;
 
 public class CastlingCalculator {
+
+    private static final int QUEENSIDE = 0;
+    private static final int KING = 1;
+    private static final int KINGSIDE = 2;
+    private static final int WHITESIDE = 0;
+    private static final int BLACKSIDE = 1;
+
     public void canCastle(boolean[][] castlingPermissions, ChessBoard board, ChessPosition startPos,
                           Collection<ChessMove> validMoves) {
         ChessGame.TeamColor color = board.getPiece(startPos).getTeamColor();
-        int side = color == ChessGame.TeamColor.WHITE ? 0 : 1;
+        int side = color == ChessGame.TeamColor.WHITE ? WHITESIDE : BLACKSIDE;
         int row = startPos.getRow();
 
-        if (!castlingPermissions[side][1]) {
+        if (!castlingPermissions[side][KING]) {
             return;
         }
-        if (castlingPermissions[side][0] && checkSpots(board, color, new ChessPosition(row, 2),
+        if (castlingPermissions[side][QUEENSIDE] && checkSpots(board, color, new ChessPosition(row, 2),
                 new ChessPosition(row, 3), new ChessPosition(row, 4))) {
             validMoves.add(new ChessMove(startPos, new ChessPosition(row, 3), null));
         }
-        if (castlingPermissions[side][2] && checkSpots(board, color, new ChessPosition(row, 6),
+        if (castlingPermissions[side][KINGSIDE] && checkSpots(board, color, new ChessPosition(row, 6),
                 new ChessPosition(row, 7))) {
             validMoves.add(new ChessMove(startPos, new ChessPosition(row, 7), null));
         }
@@ -32,7 +39,7 @@ public class CastlingCalculator {
             return null;
         }
 
-        int side = startPos.getRow() == 0 ? 0 : 1;
+        int side = startPos.getRow() == 0 ? WHITESIDE : BLACKSIDE;
         castlingPermissions[side][1] = false;
 
         boolean castleQueen = startPos.getColumn() > endPos.getColumn();
@@ -56,12 +63,12 @@ public class CastlingCalculator {
         ChessPiece pieceEEight = board.getPiece(new ChessPosition(8, 5));
         ChessPiece pieceHEight = board.getPiece(new ChessPosition(8, 8));
 
-        castlingPermissions[0][0] = (pieceAOne != null && pieceAOne.equals(whiteRook));
-        castlingPermissions[0][1] = (pieceEOne != null && pieceEOne.equals(whiteKing));
-        castlingPermissions[0][2] = (pieceHOne != null && pieceHOne.equals(whiteRook));
-        castlingPermissions[1][0] = (pieceAEight != null && pieceAEight.equals(blackRook));
-        castlingPermissions[1][1] = (pieceEEight != null && pieceEEight.equals(blackKing));
-        castlingPermissions[1][2] = (pieceHEight != null && pieceHEight.equals(blackRook));
+        castlingPermissions[WHITESIDE][QUEENSIDE] = (pieceAOne != null && pieceAOne.equals(whiteRook));
+        castlingPermissions[WHITESIDE][KING] = (pieceEOne != null && pieceEOne.equals(whiteKing));
+        castlingPermissions[WHITESIDE][KINGSIDE] = (pieceHOne != null && pieceHOne.equals(whiteRook));
+        castlingPermissions[BLACKSIDE][QUEENSIDE] = (pieceAEight != null && pieceAEight.equals(blackRook));
+        castlingPermissions[BLACKSIDE][KING] = (pieceEEight != null && pieceEEight.equals(blackKing));
+        castlingPermissions[BLACKSIDE][KINGSIDE] = (pieceHEight != null && pieceHEight.equals(blackRook));
     }
 
     public void updateCastlingPermissions(ChessMove move, ChessBoard board, boolean[][] castlingPermissions) {
@@ -83,8 +90,9 @@ public class CastlingCalculator {
     }
 
     public void captureCorner(ChessMove move, boolean[][] castlingPermissions) {
-        int[][] corners = {{1, 1}, {1, 8}, {8, 8}, {8, 1}};
-        int[][] castlingLocation = {{0, 0}, {0, 2}, {1, 2}, {1, 0}};
+        int[][] corners = {{1, 1}, {1, 8}, {8, 1}, {8, 8}};
+        int[][] castlingLocation = {{WHITESIDE, QUEENSIDE}, {WHITESIDE, KINGSIDE},
+                                    {BLACKSIDE, QUEENSIDE}, {BLACKSIDE, KINGSIDE}};
         for (int i = 0; i < corners.length; i++) {
             if (move.getEndPosition().equals(new ChessPosition(corners[i][0], corners[i][1]))) {
                 castlingPermissions[castlingLocation[i][0]][castlingLocation[i][1]] = false;
