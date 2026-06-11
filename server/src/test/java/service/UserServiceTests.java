@@ -73,4 +73,19 @@ public abstract class UserServiceTests {
         AuthenticationResponse response = this.userService.login(this.standardLoginRequest);
         assertAuthenticationResponse(response);
     }
+
+    @Test
+    public void loginBadRequest() {
+        LoginRequest[] badRequests = {null,
+                new LoginRequest(null, this.password),
+                new LoginRequest(this.username, null),
+                new LoginRequest(null, null)
+        };
+        for (LoginRequest request : badRequests) {
+            ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
+                    this.userService.login(request));
+            Assertions.assertEquals(400, exception.getErrorCode());
+            Assertions.assertTrue(exception.getMessage().contains("Bad Request"));
+        }
+    }
 }
