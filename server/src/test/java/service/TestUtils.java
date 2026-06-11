@@ -2,9 +2,16 @@ package service;
 
 import exception.ResponseException;
 import org.junit.jupiter.api.Assertions;
+import request.RegisterRequest;
 import response.AuthenticationResponse;
 
 public class TestUtils {
+    public static String createAuthUser(RegisterRequest request, UserService userService) {
+        AuthenticationResponse response = userService.register(request);
+        TestUtils.assertAuthenticationResponse(response, request.username());
+        return response.authToken();
+    }
+
     public static void assertAuthenticationResponse(AuthenticationResponse response, String username) {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.username(), username);
