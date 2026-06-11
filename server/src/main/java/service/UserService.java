@@ -62,6 +62,7 @@ public class UserService {
             int errorCode = e.getMessage().contains("Unauthorized") ? 401 : 500;
             throw new ResponseException(errorCode, e.getMessage());
         }
+        return null;
     }
 
     public void logout(String authToken) {
