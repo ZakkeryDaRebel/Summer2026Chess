@@ -17,7 +17,9 @@ public class UserService {
     }
 
     public AuthenticationResponse register(RegisterRequest request) {
-        return null;
+        if (request.username() == null || request.password() == null || request.email() == null) {
+            throw new
+        }
     }
 
     public AuthenticationResponse login(LoginRequest request) {
