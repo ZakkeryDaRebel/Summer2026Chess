@@ -13,6 +13,7 @@ public abstract class UserServiceTests {
     private final String username = "bob";
     private final String password = "1234";
     private final String email = "bob@gmail.com";
+    private final RegisterRequest standardRequest = new RegisterRequest(this.username, this.password, this.email);
 
     private UserService userService;
 
@@ -26,8 +27,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerSuccessful() {
-        RegisterRequest request = new RegisterRequest(this.username, this.password, this.email);
-        AuthenticationResponse response = this.userService.register(request);
+        AuthenticationResponse response = this.userService.register(this.standardRequest);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.username(), this.username);
         Assertions.assertNotNull(response.authToken());
@@ -50,5 +50,14 @@ public abstract class UserServiceTests {
             Assertions.assertEquals(400, exception.getErrorCode());
             Assertions.assertTrue(exception.getMessage().contains("Bad Request"));
         }
+    }
+
+    @Test
+    public void registerAlreadyTaken() {
+        registerSuccessful();
+        ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
+                this.userService.register(this.standardRequest));
+        Assertions.assertEquals(403, exception.getErrorCode());
+        Assertions.assertTrue(exception.getMessage().contains("Already Taken"));
     }
 }
