@@ -49,7 +49,7 @@ public class UserService {
         }
     }
 
-    public AuthenticationResponse login(LoginRequest request) {
+    public AuthenticationResponse login(LoginRequest request) throws ResponseException {
         if (request == null || request.username() == null || request.password() == null) {
             throw new ResponseException(400, "Bad Request: Please include the username and password");
         }
