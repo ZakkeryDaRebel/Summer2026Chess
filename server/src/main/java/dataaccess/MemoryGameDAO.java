@@ -3,6 +3,8 @@ package dataaccess;
 import chess.ChessGame;
 import model.GameData;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MemoryGameDAO implements GameDAO {
 
@@ -31,5 +33,13 @@ public class MemoryGameDAO implements GameDAO {
         } catch (IndexOutOfBoundsException ex) {
             throw new DataAccessException("Invalid gameID");
         }
+    }
+
+    public Collection<GameData> listGames() {
+        return this.gameDatabase;
+    }
+
+    public void clearGames() {
+        this.gameDatabase = new ArrayList<>();
     }
 }
