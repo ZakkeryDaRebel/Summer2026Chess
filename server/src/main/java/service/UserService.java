@@ -59,14 +59,7 @@ public class UserService {
     }
 
     public void logout(String authToken) {
-        ServiceUtils.badRequestChecker("Bad Request: Please register or login before logging out", authToken);
-
-        try {
-            this.authDAO.getAuth(authToken);
-        } catch (DataAccessException e) {
-            int errorCode = e.getMessage().contains("Unauthorized") ? 401 : 500;
-            throw new ResponseException(errorCode, e.getMessage());
-        }
+        ServiceUtils.validateAuth(authToken, this.authDAO);
 
         try {
             this.authDAO.deleteAuth(authToken);
