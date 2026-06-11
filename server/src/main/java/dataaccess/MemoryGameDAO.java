@@ -2,41 +2,44 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
 
-    private HashMap<Integer, GameData> gameDatabase;
-    private int nextGameID = 101;
+    private ArrayList<GameData> gameDatabase;
 
     public MemoryGameDAO() {
-        this.gameDatabase = new HashMap<>();
+        this.gameDatabase = new ArrayList<>();
     }
 
     public int createGame(String gameName) {
-        GameData game = new GameData(nextGameID++, null, null, gameName, new ChessGame());
-        this.gameDatabase.put(game.gameID(), game);
+        GameData game = new GameData(gameDatabase.size(), null, null, gameName, new ChessGame());
+        this.gameDatabase.add(game);
         return game.gameID();
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
-        GameData game = this.gameDatabase.get(gameID);
-        if (game == null) {
+        try {
+            GameData game = this.gameDatabase.get(gameID);
+            if (game == null) {
+                throw new IndexOutOfBoundsException();
+            }
+            return game;
+        } catch (IndexOutOfBoundsException ex) {
             throw new DataAccessException("Invalid gameID");
         }
-        return game;
     }
 
     public Collection<GameData> listGames() {
-        return this.gameDatabase.values();
+        return this.gameDatabase;
     }
 
-    public void updateGame(GameData game) throws DataAccessException {
-        this.gameDatabase.put(game.gameID(), game);
+    public void updateGame(GameData game) {
+        this.gameDatabase.set(game.gameID(), game);
     }
 
     public void clearGames() {
-        this.gameDatabase = new HashMap<>();
+        this.gameDatabase = new ArrayList<>();
     }
 }
