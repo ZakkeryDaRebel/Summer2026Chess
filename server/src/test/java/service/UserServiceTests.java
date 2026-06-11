@@ -1,8 +1,6 @@
 package service;
 
 import dataaccess.DAOFactory;
-import exception.ResponseException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.LoginRequest;
@@ -87,6 +85,11 @@ public abstract class UserServiceTests {
 
     @Test
     public void logoutBadRequest() {
-        TestUtils.assertBadRequest(new String[]{null}, request -> this.userService.logout(request));
+        TestUtils.assertBadRequest(new String[]{null}, token -> this.userService.logout(token));
+    }
+
+    @Test
+    public void logoutUnauthorized() {
+        TestUtils.assertUnauthorized(new String[]{"Fake authToken"}, token -> this.userService.logout(token));
     }
 }
