@@ -88,4 +88,18 @@ public abstract class UserServiceTests {
             Assertions.assertTrue(exception.getMessage().contains("Bad Request"));
         }
     }
+
+    @Test
+    public void loginUnauthorized() {
+        LoginRequest[] badRequests = {
+                new LoginRequest("not_bob", this.password),
+                new LoginRequest(this.username, "9876")
+        };
+        for (LoginRequest request : badRequests) {
+            ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
+                    this.userService.login(request));
+            Assertions.assertEquals(401, exception.getErrorCode());
+            Assertions.assertTrue(exception.getMessage().contains("Unauthorized"));
+        }
+    }
 }
