@@ -22,6 +22,18 @@ public class TestUtils {
         void sendRequest(T request) throws ResponseException;
     }
 
+    public static <T> void assertBadRequest(T[] badRequests, Endpoint<T> endpoint) {
+        assertResponseException(badRequests, endpoint, 400, "Bad Request");
+    }
+
+    public static <T> void assertUnauthorized(T[] badRequests, Endpoint<T> endpoint) {
+        assertResponseException(badRequests, endpoint, 401, "Unauthorized");
+    }
+
+    public static <T> void assertAlreadyTaken(T[] badRequests, Endpoint<T> endpoint) {
+        assertResponseException(badRequests, endpoint, 403, "Already Taken");
+    }
+
     public static <T> void assertResponseException(T[] badRequests, Endpoint<T> endpoint, int errorCode, String errorMessage) {
         for (T request : badRequests) {
             ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
