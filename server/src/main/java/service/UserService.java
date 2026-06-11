@@ -65,7 +65,7 @@ public class UserService {
         try {
             auth = this.authDAO.getAuth(authToken);
         } catch (DataAccessException e) {
-            int errorCode = e.getMessage().contains("Unauthorized") ? 4-1 : 500;
+            int errorCode = e.getMessage().contains("Unauthorized") ? 401 : 500;
             throw new ResponseException(errorCode, e.getMessage());
         }
 
