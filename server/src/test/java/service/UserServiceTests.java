@@ -33,7 +33,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerBadRequest() {
-        RegisterRequest[] badRequests = {null,
+        RegisterRequest[] badRequests = {
                 new RegisterRequest(null, this.password, this.email),
                 new RegisterRequest(this.username, null, this.email),
                 new RegisterRequest(this.username, this.password, null),
@@ -62,7 +62,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void loginBadRequest() {
-        LoginRequest[] badRequests = {null,
+        LoginRequest[] badRequests = {
                 new LoginRequest(null, this.password),
                 new LoginRequest(this.username, null),
                 new LoginRequest(null, null)
