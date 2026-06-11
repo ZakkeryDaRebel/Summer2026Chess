@@ -50,21 +50,15 @@ public abstract class UserServiceTests {
                 new RegisterRequest(this.username, null, null),
                 new RegisterRequest(null, null, null)
         };
-        for (RegisterRequest request : badRequests) {
-            ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
-                    this.userService.register(request));
-            Assertions.assertEquals(400, exception.getErrorCode());
-            Assertions.assertTrue(exception.getMessage().contains("Bad Request"));
-        }
+        assertResponseException(badRequests,
+                request -> this.userService.register(request), 400, "Bad Request");
     }
 
     @Test
     public void registerAlreadyTaken() {
         registerSuccessful();
-        ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
-                this.userService.register(this.standardRegisterRequest));
-        Assertions.assertEquals(403, exception.getErrorCode());
-        Assertions.assertTrue(exception.getMessage().contains("Already Taken"));
+        assertResponseException(new RegisterRequest[]{standardRegisterRequest},
+                request -> this.userService.register(request), 403, "Already Taken");
     }
 
     @Test
@@ -81,12 +75,8 @@ public abstract class UserServiceTests {
                 new LoginRequest(this.username, null),
                 new LoginRequest(null, null)
         };
-        for (LoginRequest request : badRequests) {
-            ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
-                    this.userService.login(request));
-            Assertions.assertEquals(400, exception.getErrorCode());
-            Assertions.assertTrue(exception.getMessage().contains("Bad Request"));
-        }
+        assertResponseException(badRequests, request -> this.userService.login(request),
+                400, "Bad Request");
     }
 
     @Test
@@ -95,11 +85,20 @@ public abstract class UserServiceTests {
                 new LoginRequest("not_bob", this.password),
                 new LoginRequest(this.username, "9876")
         };
-        for (LoginRequest request : badRequests) {
+        assertResponseException(badRequests, request -> this.userService.login(request),
+                401, "Unauthorized");
+    }
+
+    public interface Endpoint<T> {
+        void sendRequest(T request) throws ResponseException;
+    }
+
+    public <T> void assertResponseException(T[] badRequests, Endpoint<T> endpoint, int errorCode, String errorMessage) {
+        for (T request : badRequests) {
             ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
-                    this.userService.login(request));
-            Assertions.assertEquals(401, exception.getErrorCode());
-            Assertions.assertTrue(exception.getMessage().contains("Unauthorized"));
+                    endpoint.sendRequest(request));
+            Assertions.assertEquals(errorCode, exception.getErrorCode());
+            Assertions.assertTrue(exception.getMessage().contains(errorMessage));
         }
     }
 }
