@@ -39,13 +39,7 @@ public class UserService {
             throw new ResponseException(500, "Server error: Failed to create user. " + e.getMessage());
         }
 
-        AuthData auth = new AuthData(generateAuthToken(), request.username());
-        try {
-            this.authDAO.createAuth(auth);
-            return new AuthenticationResponse(auth.username(), auth.authToken());
-        } catch (DataAccessException e) {
-            throw new ResponseException(500, "Server error: Failed to create authorization. " + e.getMessage());
-        }
+        return createAuth(request.username());
     }
 
     public AuthenticationResponse login(LoginRequest request) throws ResponseException {
@@ -61,18 +55,34 @@ public class UserService {
             throw new ResponseException(errorCode, e.getMessage());
         }
 
-        AuthData auth = new AuthData(generateAuthToken(), request.username());
+        return createAuth(request.username());
+    }
+
+    public void logout(String authToken) {
+        ServiceUtils.badRequestChecker("Bad Request: Please register or login before logging out", authToken);
+
+        AuthData auth;
+        try {
+            auth = this.authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            int errorCode = e.getMessage().contains("Unauthorized") ? 4-1 : 500;
+            throw new ResponseException(errorCode, e.getMessage());
+        }
+
+        try {
+            this.authDAO.deleteAuth(authToken);
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, "Server error: Could not log you out. " + ex.getMessage());
+        }
+    }
+
+    public AuthenticationResponse createAuth(String username) {
+        AuthData auth = new AuthData(generateAuthToken(), username);
         try {
             this.authDAO.createAuth(auth);
             return new AuthenticationResponse(auth.username(), auth.authToken());
         } catch (DataAccessException e) {
             throw new ResponseException(500, "Server error: Failed to create authorization. " + e.getMessage());
-        }
-    }
-
-    public void logout(String authToken) {
-        if (authToken == null) {
-            throw new ResponseException(400, "Bad Request: Please register or login before logging out");
         }
     }
 
