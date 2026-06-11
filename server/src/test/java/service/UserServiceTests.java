@@ -3,7 +3,6 @@ package service;
 import dataaccess.DAOFactory;
 import exception.ResponseException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.RegisterRequest;
@@ -46,9 +45,8 @@ public abstract class UserServiceTests {
                 new RegisterRequest(null, null, null)
         };
         for (RegisterRequest request : badRequests) {
-            ResponseException exception = Assertions.assertThrows(ResponseException.class, () -> {
-                this.userService.register(request);
-            });
+            ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
+                    this.userService.register(request));
             Assertions.assertEquals(400, exception.getErrorCode());
             Assertions.assertTrue(exception.getMessage().contains("Bad Request"));
         }
