@@ -20,4 +20,16 @@ public class MemoryGameDAO implements GameDAO {
         }
         return gameID;
     }
+
+    public GameData getGame(int gameID) throws DataAccessException {
+        try {
+            GameData game = this.gameDatabase.get(gameID);
+            if (game == null) {
+                throw new DataAccessException("Invalid gameID");
+            }
+            return game;
+        } catch (IndexOutOfBoundsException ex) {
+            throw new DataAccessException("Invalid gameID");
+        }
+    }
 }
