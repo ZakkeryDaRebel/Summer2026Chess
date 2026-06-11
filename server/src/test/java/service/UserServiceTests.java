@@ -5,6 +5,7 @@ import exception.ResponseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import request.LoginRequest;
 import request.RegisterRequest;
 import response.AuthenticationResponse;
 
@@ -13,7 +14,8 @@ public abstract class UserServiceTests {
     private final String username = "bob";
     private final String password = "1234";
     private final String email = "bob@gmail.com";
-    private final RegisterRequest standardRequest = new RegisterRequest(this.username, this.password, this.email);
+    private final RegisterRequest standardRegisterRequest = new RegisterRequest(this.username, this.password, this.email);
+    private final LoginRequest standardLoginRequest = new LoginRequest(this.username, this.password);
 
     private UserService userService;
 
@@ -27,7 +29,11 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerSuccessful() {
-        AuthenticationResponse response = this.userService.register(this.standardRequest);
+        AuthenticationResponse response = this.userService.register(this.standardRegisterRequest);
+        assertAuthenticationResponse(response);
+    }
+
+    public void assertAuthenticationResponse(AuthenticationResponse response) {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.username(), this.username);
         Assertions.assertNotNull(response.authToken());
@@ -56,8 +62,15 @@ public abstract class UserServiceTests {
     public void registerAlreadyTaken() {
         registerSuccessful();
         ResponseException exception = Assertions.assertThrows(ResponseException.class, () ->
-                this.userService.register(this.standardRequest));
+                this.userService.register(this.standardRegisterRequest));
         Assertions.assertEquals(403, exception.getErrorCode());
         Assertions.assertTrue(exception.getMessage().contains("Already Taken"));
+    }
+
+    @Test
+    public void loginSuccessful() {
+        registerSuccessful();
+        AuthenticationResponse response = this.userService.login(this.standardLoginRequest);
+        assertAuthenticationResponse(response);
     }
 }
