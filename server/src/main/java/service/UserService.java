@@ -43,10 +43,10 @@ public class UserService {
         AuthData auth = new AuthData(generateAuthToken(), request.username());
         try {
             this.authDAO.createAuth(auth);
+            return new AuthenticationResponse(auth.username(), auth.authToken());
         } catch (DataAccessException e) {
             throw new ResponseException(500, "Server error: Failed to create authorization. " + e.getMessage());
         }
-        return new AuthenticationResponse(auth.username(), auth.authToken());
     }
 
     public AuthenticationResponse login(LoginRequest request) {
@@ -62,7 +62,14 @@ public class UserService {
             int errorCode = e.getMessage().contains("Unauthorized") ? 401 : 500;
             throw new ResponseException(errorCode, e.getMessage());
         }
-        return null;
+
+        AuthData auth = new AuthData(generateAuthToken(), request.username());
+        try {
+            this.authDAO.createAuth(auth);
+            return new AuthenticationResponse(auth.username(), auth.authToken());
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, "Server error: Failed to create authorization. " + e.getMessage());
+        }
     }
 
     public void logout(String authToken) {
