@@ -24,9 +24,8 @@ public class UserService {
     }
 
     public AuthenticationResponse register(RegisterRequest request) throws ResponseException {
-        if (request == null || request.username() == null || request.password() == null || request.email() == null) {
-            throw new ResponseException(400, "Bad Request: Please include the username, password, and email");
-        }
+        ServiceUtils.badRequestChecker("Bad Request: Please include the username, password, and email",
+                request.username(), request.password(), request.email());
 
         try {
             this.userDAO.getUser(request.username());
@@ -50,9 +49,8 @@ public class UserService {
     }
 
     public AuthenticationResponse login(LoginRequest request) throws ResponseException {
-        if (request == null || request.username() == null || request.password() == null) {
-            throw new ResponseException(400, "Bad Request: Please include the username and password");
-        }
+        ServiceUtils.badRequestChecker("Bad Request: Please include the username and password",
+                request.username(), request.password());
 
         UserData user;
         try {
@@ -73,7 +71,9 @@ public class UserService {
     }
 
     public void logout(String authToken) {
-        return;
+        if (authToken == null) {
+            throw new ResponseException(400, "Bad Request: Please register or login before logging out");
+        }
     }
 
     public void comparePasswords(String userPassword, String databasePassword) throws DataAccessException {
