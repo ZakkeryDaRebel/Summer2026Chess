@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.DAOFactory;
 import exception.ResponseException;
 import org.junit.jupiter.api.Assertions;
 import response.AuthenticationResponse;
