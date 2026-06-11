@@ -1,6 +1,8 @@
 package service;
 
 import dataaccess.DAOFactory;
+import exception.ResponseException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.LoginRequest;
@@ -41,15 +43,14 @@ public abstract class UserServiceTests {
                 new RegisterRequest(this.username, null, null),
                 new RegisterRequest(null, null, null)
         };
-        TestUtils.assertResponseException(badRequests,
-                request -> this.userService.register(request), 400, "Bad Request");
+        TestUtils.assertBadRequest(badRequests, request -> this.userService.register(request));
     }
 
     @Test
     public void registerAlreadyTaken() {
         TestUtils.createAuthUser(standardRegisterRequest, this.userService);
-        TestUtils.assertResponseException(new RegisterRequest[]{standardRegisterRequest},
-                request -> this.userService.register(request), 403, "Already Taken");
+        TestUtils.assertAlreadyTaken(new RegisterRequest[]{standardRegisterRequest},
+                request -> this.userService.register(request));
     }
 
     @Test
@@ -66,8 +67,7 @@ public abstract class UserServiceTests {
                 new LoginRequest(this.username, null),
                 new LoginRequest(null, null)
         };
-        TestUtils.assertResponseException(badRequests, request -> this.userService.login(request),
-                400, "Bad Request");
+        TestUtils.assertBadRequest(badRequests, request -> this.userService.login(request));
     }
 
     @Test
@@ -76,13 +76,17 @@ public abstract class UserServiceTests {
                 new LoginRequest("not_bob", this.password),
                 new LoginRequest(this.username, "9876")
         };
-        TestUtils.assertResponseException(badRequests, request -> this.userService.login(request),
-                401, "Unauthorized");
+        TestUtils.assertUnauthorized(badRequests, request -> this.userService.login(request));
     }
 
     @Test
     public void logoutSuccessful() {
         String authToken = TestUtils.createAuthUser(standardRegisterRequest, this.userService);
         this.userService.logout(authToken);
+    }
+
+    @Test
+    public void logoutBadRequest() {
+        TestUtils.assertBadRequest(new String[]{null}, request -> this.userService.logout(request));
     }
 }
