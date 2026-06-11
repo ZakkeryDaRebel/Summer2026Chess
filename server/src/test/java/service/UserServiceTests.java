@@ -27,8 +27,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerSuccessful() {
-        AuthenticationResponse response = this.userService.register(this.standardRegisterRequest);
-        TestUtils.assertAuthenticationResponse(response, this.username);
+        TestUtils.createAuthUser(standardRegisterRequest, this.userService);
     }
 
     @Test
@@ -48,14 +47,14 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerAlreadyTaken() {
-        registerSuccessful();
+        TestUtils.createAuthUser(standardRegisterRequest, this.userService);
         TestUtils.assertResponseException(new RegisterRequest[]{standardRegisterRequest},
                 request -> this.userService.register(request), 403, "Already Taken");
     }
 
     @Test
     public void loginSuccessful() {
-        registerSuccessful();
+        TestUtils.createAuthUser(standardRegisterRequest, this.userService);
         AuthenticationResponse response = this.userService.login(this.standardLoginRequest);
         TestUtils.assertAuthenticationResponse(response, this.username);
     }
@@ -81,5 +80,9 @@ public abstract class UserServiceTests {
                 401, "Unauthorized");
     }
 
-
+    @Test
+    public void logoutSuccessful() {
+        String authToken = TestUtils.createAuthUser(standardRegisterRequest, this.userService);
+        this.userService.logout(authToken);
+    }
 }
