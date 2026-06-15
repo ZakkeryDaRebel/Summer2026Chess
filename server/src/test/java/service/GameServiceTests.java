@@ -17,7 +17,7 @@ public class GameServiceTests {
 
     private GameService gameService;
     private UserService userService;
-    private String gameName = "Final Game!";
+    private final String gameName = "Final Game!";
 
     @BeforeEach
     public void setUpServices() {
