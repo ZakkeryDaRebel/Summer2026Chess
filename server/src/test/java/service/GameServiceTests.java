@@ -44,10 +44,8 @@ public class GameServiceTests {
     @Test
     public void createGameUnauthorized() {
         String[] authTokens = {null, "Invalid authToken"};
-        for (String token : authTokens) {
-            TestUtils.assertUnauthorized(new CreateGameRequest[]{new CreateGameRequest(this.gameName)},
-                    request -> this.gameService.createGame(request, token));
-        }
+        CreateGameRequest request = new CreateGameRequest(this.gameName);
+        TestUtils.assertUnauthorized(authTokens, token -> this.gameService.createGame(request, token));
     }
 
     public void assertList(ListGamesResponse response) {
@@ -106,6 +104,7 @@ public class GameServiceTests {
 
     @Test
     public void listGamesUnauthorized() {
-
+        String[] authTokens = {null, "Invalid authToken"};
+        TestUtils.assertUnauthorized(authTokens, token -> this.gameService.listGames(token));
     }
 }
