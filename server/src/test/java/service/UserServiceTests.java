@@ -26,7 +26,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerSuccessful() {
-        TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
+        TestUtils.createAuthUser(this.userService);
     }
 
     @Test
@@ -45,14 +45,14 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerAlreadyTaken() {
-        TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
+        TestUtils.createAuthUser(this.userService);
         TestUtils.assertAlreadyTaken(new RegisterRequest[]{TestUtils.registerRequest},
                 request -> this.userService.register(request));
     }
 
     @Test
     public void loginSuccessful() {
-        TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
+        TestUtils.createAuthUser(this.userService);
         AuthenticationResponse response = this.userService.login(this.standardLoginRequest);
         TestUtils.assertAuthenticationResponse(response, this.username);
     }
@@ -78,7 +78,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void logoutSuccessful() {
-        String authToken = TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
+        String authToken = TestUtils.createAuthUser(this.userService);
         this.userService.logout(authToken);
     }
 

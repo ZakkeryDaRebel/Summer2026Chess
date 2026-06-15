@@ -15,6 +15,12 @@ public class TestUtils {
         return response.authToken();
     }
 
+    public static String createAuthUser(UserService userService) {
+        AuthenticationResponse response = userService.register(registerRequest);
+        TestUtils.assertAuthenticationResponse(response, registerRequest.username());
+        return response.authToken();
+    }
+
     public static void assertAuthenticationResponse(AuthenticationResponse response, String username) {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.username(), username);
