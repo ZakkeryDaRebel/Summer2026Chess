@@ -20,12 +20,6 @@ public class TestUtils {
 
     public static final RegisterRequest registerRequest = new RegisterRequest("bob", "1234", "bob@gmail.com");
 
-    public static String createAuthUser(RegisterRequest request, UserService userService) {
-        AuthenticationResponse response = userService.register(request);
-        TestUtils.assertAuthenticationResponse(response, request.username());
-        return response.authToken();
-    }
-
     public static String createAuthUser(UserService userService) {
         AuthenticationResponse response = userService.register(registerRequest);
         TestUtils.assertAuthenticationResponse(response, registerRequest.username());
