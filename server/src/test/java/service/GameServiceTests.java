@@ -38,8 +38,10 @@ public class GameServiceTests {
 
     @Test
     public void createGameUnauthorized() {
-//        TestUtils.assertUnauthorized(new CreateGameRequest[]{new CreateGameRequest(this.gameName)},
-//                request -> this.gameService.createGame(request, null));
-        Assertions.assertTrue(true);
+        String[] authTokens = {null, "Invalid authToken"};
+        for (String token : authTokens) {
+            TestUtils.assertUnauthorized(new CreateGameRequest[]{new CreateGameRequest(this.gameName)},
+                    request -> this.gameService.createGame(request, token));
+        }
     }
 }

@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import exception.ResponseException;
+import model.AuthData;
 
 public class ServiceUtils {
     public static void badRequestChecker(String message, Object... params) throws ResponseException {
@@ -13,11 +14,13 @@ public class ServiceUtils {
         }
     }
 
-    public static void validateAuth(String authToken, AuthDAO authDAO) throws ResponseException {
-        ServiceUtils.badRequestChecker("Bad Request: Please register or login before logging out", authToken);
-
+    public static AuthData validateAuth(String authToken, AuthDAO authDAO) throws ResponseException {
         try {
-            authDAO.getAuth(authToken);
+            AuthData auth = authDAO.getAuth(authToken);
+            if (auth == null) {
+                throw new DataAccessException("Unauthorized");
+            }
+            return auth;
         } catch (DataAccessException e) {
             int errorCode = e.getMessage().contains("Unauthorized") ? 401 : 500;
             throw new ResponseException(errorCode, e.getMessage());

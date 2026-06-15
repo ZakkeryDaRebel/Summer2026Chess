@@ -84,12 +84,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void logoutBadRequest() {
-        TestUtils.assertBadRequest(new String[]{null}, token -> this.userService.logout(token));
-    }
-
-    @Test
     public void logoutUnauthorized() {
-        TestUtils.assertUnauthorized(new String[]{"Fake authToken"}, token -> this.userService.logout(token));
+        TestUtils.assertUnauthorized(new String[]{"Fake authToken", null}, token -> this.userService.logout(token));
     }
 }
