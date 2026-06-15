@@ -11,7 +11,6 @@ public abstract class UserServiceTests {
 
     private final String username = "bob";
     private final String password = "1234";
-    private final String email = "bob@gmail.com";
     private final LoginRequest standardLoginRequest = new LoginRequest(this.username, this.password);
 
     private UserService userService;
@@ -31,11 +30,12 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerBadRequest() {
+        String email = "bob@gmail.com";
         RegisterRequest[] badRequests = {
-                new RegisterRequest(null, this.password, this.email),
-                new RegisterRequest(this.username, null, this.email),
+                new RegisterRequest(null, this.password, email),
+                new RegisterRequest(this.username, null, email),
                 new RegisterRequest(this.username, this.password, null),
-                new RegisterRequest(null, null, this.email),
+                new RegisterRequest(null, null, email),
                 new RegisterRequest(null, this.password, null),
                 new RegisterRequest(this.username, null, null),
                 new RegisterRequest(null, null, null)
