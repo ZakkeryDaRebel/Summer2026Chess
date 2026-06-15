@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DAOFactory;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import exception.ResponseException;
 import request.CreateGameRequest;
@@ -20,8 +21,15 @@ public class GameService {
     }
 
     public CreateGameResponse createGame(CreateGameRequest request, String authToken) throws ResponseException {
+        ServiceUtils.badRequestChecker("Bad Request: Please input a name for the game", request.gameName());
         ServiceUtils.validateAuth(authToken, this.authDAO);
-        return null;
+
+        try {
+            int gameID = this.gameDAO.createGame(request.gameName());
+            return new CreateGameResponse(gameID);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, "Server Error: Failed to create the game" + e.getMessage());
+        }
     }
 
     public ListGamesResponse listGames(String authToken) {
