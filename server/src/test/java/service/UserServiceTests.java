@@ -12,7 +12,6 @@ public abstract class UserServiceTests {
     private final String username = "bob";
     private final String password = "1234";
     private final String email = "bob@gmail.com";
-    private final RegisterRequest standardRegisterRequest = new RegisterRequest(this.username, this.password, this.email);
     private final LoginRequest standardLoginRequest = new LoginRequest(this.username, this.password);
 
     private UserService userService;
@@ -27,7 +26,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerSuccessful() {
-        TestUtils.createAuthUser(standardRegisterRequest, this.userService);
+        TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
     }
 
     @Test
@@ -46,14 +45,14 @@ public abstract class UserServiceTests {
 
     @Test
     public void registerAlreadyTaken() {
-        TestUtils.createAuthUser(standardRegisterRequest, this.userService);
-        TestUtils.assertAlreadyTaken(new RegisterRequest[]{standardRegisterRequest},
+        TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
+        TestUtils.assertAlreadyTaken(new RegisterRequest[]{TestUtils.registerRequest},
                 request -> this.userService.register(request));
     }
 
     @Test
     public void loginSuccessful() {
-        TestUtils.createAuthUser(standardRegisterRequest, this.userService);
+        TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
         AuthenticationResponse response = this.userService.login(this.standardLoginRequest);
         TestUtils.assertAuthenticationResponse(response, this.username);
     }
@@ -79,7 +78,7 @@ public abstract class UserServiceTests {
 
     @Test
     public void logoutSuccessful() {
-        String authToken = TestUtils.createAuthUser(standardRegisterRequest, this.userService);
+        String authToken = TestUtils.createAuthUser(TestUtils.registerRequest, this.userService);
         this.userService.logout(authToken);
     }
 
