@@ -1,11 +1,22 @@
 package service;
 
+import dataaccess.DAOFactory;
+import dataaccess.MemoryDAOFactory;
 import exception.ResponseException;
 import org.junit.jupiter.api.Assertions;
 import request.RegisterRequest;
 import response.AuthenticationResponse;
 
+import java.util.stream.Stream;
+
 public class TestUtils {
+
+    public static Stream<DAOFactory> daoFactoryProvider() {
+        return Stream.of(
+                new MemoryDAOFactory()
+                //new UserService(new SqlUserDAO())
+        );
+    }
 
     public static final RegisterRequest registerRequest = new RegisterRequest("bob", "1234", "bob@gmail.com");
 

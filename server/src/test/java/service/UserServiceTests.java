@@ -1,13 +1,16 @@
 package service;
 
 import dataaccess.DAOFactory;
+import dataaccess.MemoryDAOFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.AuthenticationResponse;
 
-public abstract class UserServiceTests {
+public class UserServiceTests {
 
     private final String username = "bob";
     private final String password = "1234";
@@ -17,11 +20,9 @@ public abstract class UserServiceTests {
 
     @BeforeEach
     public void setUpServices() {
-        DAOFactory daoFactory = createFactory();
+        DAOFactory daoFactory = new MemoryDAOFactory();
         this.userService = new UserService(daoFactory);
     }
-
-    protected abstract DAOFactory createFactory();
 
     @Test
     public void registerSuccessful() {
