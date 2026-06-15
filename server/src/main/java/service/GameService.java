@@ -6,6 +6,7 @@ import dataaccess.DAOFactory;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import exception.ResponseException;
+import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -47,7 +48,28 @@ public class GameService {
         }
     }
 
-    public void joinGame(JoinGameRequest request, String authToken) {
-        return;
+    public void joinGame(JoinGameRequest request, String authToken) throws ResponseException {
+        ServiceUtils.badRequestChecker("Bad Request: Please input a valid game number and color",
+                request.gameID(), request.playerColor());
+        AuthData auth = ServiceUtils.validateAuth(authToken, this.authDAO);
+
+        GameData game;
+        try {
+            game = this.gameDAO.getGame(request.gameID());
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, "Server Error: Failed to find the game" + e.getMessage());
+        }
+
+        boolean isWhite = request.playerColor() == ChessGame.TeamColor.WHITE;
+
+        String whiteName = isWhite ? auth.username() : game.whiteUsername();
+        String blackName = !isWhite ? auth.username() : game.blackUsername();
+
+        GameData newGame = new GameData(game.gameID(), whiteName, blackName, game.gameName(), game.game());
+        try {
+            this.gameDAO.updateGame(newGame);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, "Server Error: Failed to update the game");
+        }
     }
 }
